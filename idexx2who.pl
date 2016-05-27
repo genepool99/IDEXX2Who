@@ -136,16 +136,16 @@ sub parseAccessions {
 							## SPECIAL IDEXX BUGFIXES ##
 							$_ =~ s/\s\(unable to speciate\)//i;
 							$_ =~ s/- unable to speciate//i;	
-    						$_ =~ s/ - Coagulase Positive/ Coagulase Positive/i;
-    						$_ =~ s/ - Coagulase Negative/ Coagulase Negative/i;
-    						$_ =~ s/  / /;
-    						$_ =~ s/- ISOLATED FROM THIO//;
-    						$_ =~ s/-  ISOLATED FROM//;
-    						$_ =~ s/ISOLATED FROM THIO//;
-    						$_ =~ s/NON-ENTERIC GRAM NEG RODS/NON-ENTERIC GRAM NEGATIVE ROD/;
-    						$_ =~ s/NON-ENTERIC GRAM NEG ROD/NON-ENTERIC GRAM NEGATIVE ROD/;
-    						$_ =~ s/- -/-/;
-    						$_ =~ s/-$//;
+    							$_ =~ s/ - Coagulase Positive/ Coagulase Positive/i;
+    							$_ =~ s/ - Coagulase Negative/ Coagulase Negative/i;
+    							$_ =~ s/  / /;
+    							$_ =~ s/- ISOLATED FROM THIO//;
+    							$_ =~ s/-  ISOLATED FROM//;
+    							$_ =~ s/ISOLATED FROM THIO//;
+    							$_ =~ s/NON-ENTERIC GRAM NEG RODS/NON-ENTERIC GRAM NEGATIVE ROD/;
+    							$_ =~ s/NON-ENTERIC GRAM NEG ROD/NON-ENTERIC GRAM NEGATIVE ROD/;
+    							$_ =~ s/- -/-/;
+    							$_ =~ s/-$//;
 							##
 							my @splitIso = split(/\s-\s/, $_, 2);
 							if($splitIso[1]){
@@ -384,7 +384,7 @@ sub parseUnitType {
 # ChartID, LabAccID, Date, Name, Age, Sex, Species, Breed, Owner, Doctor
 sub parseAccessionHeader {
 	my $accessionTree = $_[0];									# passed pointer to tree
-	my $header = {};										# array of hashes to hold header data
+	my $header = {};											# array of hashes to hold header data
 	my($name) = $accessionTree->findnodes('AccessionHeader/Pet/Name');
     my($age) = $accessionTree->findnodes('AccessionHeader/Pet/Age');
     my($sex) = $accessionTree->findnodes('AccessionHeader/Pet/Sex');
