@@ -14,17 +14,17 @@ use XML::LibXML;
 #		Output:		TSV text file and standard output debug								
 #########################################################################################
 
-my $startTime = time();													    # Time script started
-my $debugMode = 0;														      # (0|1) 1=turn on debug mode
-my $printMode = 0;														      # (0|1) 1=print to screen
-my $printHeader = 1;													      # 1= turn off header printing to file
-my $excludeResults = 0;													    # (0|1|2) 0=exclude none, 1=exclude negitive, 2=
+my $startTime = time();		# Time script started
+my $debugMode = 0;		# (0|1) 1=turn on debug mode
+my $printMode = 0;		# (0|1) 1=print to screen
+my $printHeader = 1;		# 1= turn off header printing to file
+my $excludeResults = 0;		# (0|1|2) 0=exclude none, 1=exclude negitive, 2=
 my $XMLfile;
 my $TXTfile;
 
-if ($#ARGV < 1){														        # Check for the min number of commandline args
-	printHelp("Error: Too few arguments.");						# If wrong number print the help screen
-	exit 0;																            # then exit
+if ($#ARGV < 1){		 # Check for the min number of commandline args
+	printHelp("Error: Too few arguments.");			
+	exit 0;																            
 }
 foreach(@ARGV){
 	if ($_ eq "-d"){
@@ -34,20 +34,20 @@ foreach(@ARGV){
 		$printMode = 1;
 	}
 	elsif ($_ eq "-En"){
-		$excludeResults = 1;											      # exclude negitive results
+		$excludeResults = 1;				
 	}
 	elsif ($_ eq "-Nh"){
-		$printHeader = 1;												        # exclude negitive results
+		$printHeader = 1;				# exclude negitive results
 	}
 	elsif (($_ =~ m/.txt/) or ($_ =~ m/.tsv/)){
-		$TXTfile = $_;													        # path to file to write
+		$TXTfile = $_;					# path to file to write
 		open(OUTP, ">$TXTfile") or die("Error can not open ", $TXTfile, " to write!");
 	}
 	elsif ($_ =~ m/.xml/){
-		$XMLfile = $_;													        # path of XML file from idexx
+		$XMLfile = $_;					# path of XML file from idexx
 	}
 	else {
-		printHelp("Error: Unknown command line argument.");				# If wrong number print the help screen
+		printHelp("Error: Unknown command line argument.");	# If wrong number print the help screen
 		exit 0;
 	}
 }
@@ -59,8 +59,8 @@ if (!$TXTfile and ($printMode == 0)){
 	printHelp("Error: Missing text file to write too.");
 	exit 0;
 }
-my $parser = XML::LibXML->new();										    # create a new instance of LibXML 
-my $tree = $parser->parse_file($XMLfile);								# tree now points the the "top" of the XML file
+my $parser = XML::LibXML->new();				
+my $tree = $parser->parse_file($XMLfile);			# tree now points the the "top" of the XML file
 if(! $tree ){
 	print "Error can not open ", $XMLfile, " for reading!";
 	exit 0;
@@ -73,16 +73,16 @@ my @cultureID = 	(
 					437, 2503, 2781, 3040, 4011, 4027,
 					4033, 4035, 4183, 6030, 40127
 					);
-my @testCodeCounts;														  # count how many of each test code was used
+my @testCodeCounts;						# count how many of each test code was used
 
 # Get the lab and clinic data that is true for all the accessions 
 my ($clinicAccountNumber, $clinicName) = parseClinic($tree);
 my ($labIDNumber, $labName) = parseLab($tree);
 
-parseAccessions($tree);													# Start the parsing of all the accessions
+parseAccessions($tree);						# Start the parsing of all the accessions
 
 if($printMode == 0){
-	close(OUTP);														      # Close the file we wrote too
+	close(OUTP);						 
 }
 
 print "Test Code:\tCount:\n";
@@ -92,46 +92,46 @@ for (my $i = 0; $i<50000; $i++){
 	}
 }
 
-my $endTime = time();													# Time processing xml finished
+my $endTime = time();						# Time processing xml finished
 print "Total processing time:\t\t", ($endTime-$startTime), " seconds.\n";	
 print "Idexx2Who v.3.1, Avi Solomon (asolomon\@dovelewis.org), 2011 \n\n";								
 
 # Loop through each accession 
 sub parseAccessions {
-	my $accessionTree = $_[0];											  # passed pointer to location in tree
-	my $totalCultures = 0;												    # total cultures counter
-	my $totalNegCultures = 0;											    # negitive cultures counter
-	my $totalSuscep = 0;												      # total sensitivies counter
-	my $totalCulturesCancelled = 0;										# total canceled culture results (ignored by parcer)
-	my $totalSuscepCancelled = 0;										  # total canceled susceptibilities canceled (ignored by parcer)
-	my $totalNonFinalResults = 0;										  # total results that were not finialized (ignored by parcer)
-	my $totalIsolates = 0;												    # total Isolates
+	my $accessionTree = $_[0];				# passed pointer to location in tree
+	my $totalCultures = 0;					# total cultures counter
+	my $totalNegCultures = 0;				# negitive cultures counter
+	my $totalSuscep = 0;					# total sensitivies counter
+	my $totalCulturesCancelled = 0;				# total canceled culture results (ignored by parcer)
+	my $totalSuscepCancelled = 0;				# total canceled susceptibilities canceled (ignored by parcer)
+	my $totalNonFinalResults = 0;				# total results that were not finialized (ignored by parcer)
+	my $totalIsolates = 0;					# total Isolates
 	if($printMode == 0){
 		printHeader();													        # print the header for the text file
 	}
-	my $debugCounter = 1;												      # counts the Accessions parsed prints during debug output
+	my $debugCounter = 1;					# counts the Accessions parsed prints during debug output
 	my $errorEnc = 0;													        # throw flag if error was encountered
 	foreach my $accession ($accessionTree->findnodes('/LabReport/Accession')){	# loop through the LabData->Accession(s)
 		my($status) = $accession->getAttribute("Order-Status");			# get the status of the accession
-		my $accCultures = 0;											      # Count of the cultures in this accession
-		my $accSuscep = 0;												      # Count of the susceptibilities in this accession
-		my $negResults = 0;												      # Total count of negitive results for given accession
-		my $source = "Unknown";											    # The source of a given culture (default:Unknown)
+		my $accCultures = 0;				# Count of the cultures in this accession
+		my $accSuscep = 0;				# Count of the susceptibilities in this accession
+		my $negResults = 0;				# Total count of negitive results for given accession
+		my $source = "Unknown";				# The source of a given culture (default:Unknown)
 		my @isolates;													          # An array of hashes of the culture isolates for a given accession
 		my @sens;														            # array of hashes of all the non-cancelled sensitivities
 		my $header = {};												        # a hash that holds the assession header data
-		if ($status eq "F"){											      # make sure the status is FINAL or ignore the unit
-			$header = parseAccessionHeader($accession);					# store header data in an array
-			foreach my $unit ($accession->findnodes('./UnitCode')){		# Loop through the Accession units
-				my $unitType = parseUnitType($unit);					# use parse unit type to find out if I care about this unit
-				if ($unitType eq 1){									        ## unit is a culture result ##							
+		if ($status eq "F"){						# make sure the status is FINAL or ignore the unit
+			$header = parseAccessionHeader($accession);		# store header data in an array
+			foreach my $unit ($accession->findnodes('./UnitCode')){		
+				my $unitType = parseUnitType($unit);		# use parse unit type to find out if I care about this unit
+				if ($unitType eq 1){				## unit is a culture result ##							
 					my ($cancelled, $unitTotal, $numOfNeg, $unitSource, @unitIsolates) = parseCultureResults($unit);
-					if ($cancelled != 1){								        # make sure this unit has not been canceled before processing
+					if ($cancelled != 1){			# make sure this unit has not been canceled before processing
 						$accCultures = $accCultures + $unitTotal; 		# add to the accession culture counter
-						$totalCultures = $totalCultures + $unitTotal;	# add to the total cultures counter
+						$totalCultures = $totalCultures + $unitTotal;		# add to the total cultures counter
 						$negResults = $negResults+$numOfNeg;			# add to the accession negitive results counter
-						$totalNegCultures = $totalNegCultures+$numOfNeg;# add to the total negitive results counter
-						foreach (@unitIsolates){						      # for each isolated organism split the growth from the organism and store them
+						$totalNegCultures = $totalNegCultures+$numOfNeg;	# add to the total negitive results counter
+						foreach (@unitIsolates){				# for each isolated organism split the growth from the organism and store them
 							print "ISO: ",$_,"\n";
 							## SPECIAL IDEXX BUGFIXES ##
 							$_ =~ s/\s\(unable to speciate\)//i;
@@ -157,11 +157,11 @@ sub parseAccessions {
 						}
 						$source = $unitSource;
 					}
-					else{$totalCulturesCancelled++;}					  # increment the total canceled results counter	
+					else{$totalCulturesCancelled++;}					  	
 				}
-				elsif ($unitType eq 2){									## unit is a sensitivity ##							
+				elsif ($unitType eq 2){							## unit is a sensitivity ##							
 					my ($cancelled, $organism, @results) = parseSensResults($unit);
-					if($cancelled != 1){								        # make sure the unit is not cancelled results
+					if($cancelled != 1){						# make sure the unit is not cancelled results
 						## SPECIAL IDEXX BUGFIXES ##
 						$organism =~ s/NON-ENTERIC NEG ROD/Non-enteric gram negative rod/;
 						$organism =~ s/Non-enteric gram negative rod /Non-enteric gram negative rod/;
@@ -179,7 +179,7 @@ sub parseAccessions {
 								print "SPLIT ORG:", $_,"\n";
 							}
 						}
-						if ($splitOrg[1]){								  # if there is a growth record
+						if ($splitOrg[1]){						# if there is a growth record
 							chomp(@splitOrg);							    
 							my $OrgTemp = $splitOrg[0];				# Save the first element, the org
 							$splitOrg[0] = "";							 
@@ -192,7 +192,7 @@ sub parseAccessions {
 							}	
 							push @sens, {ORGANISM=>$splitOrg[0],GROWTH=>" ",RESULTS=>[@results]};										
 						}
-						$totalSuscep++; $accSuscep++;					  # increment the positive suscep counters
+						$totalSuscep++; $accSuscep++;					# increment the positive suscep counters
 					}
 					else {$totalSuscepCancelled++;}						# increment the cancelled suscep counter
 				}
@@ -200,7 +200,7 @@ sub parseAccessions {
 		}
 		else {$totalNonFinalResults++;}									# increment the non-final results counter
 		
-		if ($debugMode == 1){										      	# if we are in debug mode print some useful info
+		if ($debugMode == 1){										# if we are in debug mode print some useful info
 			print "-------------------------------------\n";
 			print "Accession: ",$debugCounter,"\n";
 			$debugCounter++;
@@ -224,18 +224,18 @@ sub parseAccessions {
 			print "______DATA______\n";
 		}
 		
-		if($excludeResults == 0)										        # if we are printing negitive results
+		if($excludeResults == 0)								# if we are printing negitive results
 		{
 			for (my $i = 0; $i<$negResults; $i++){						# for each negitive result print just header line 
 				printLine($printMode,$header,$source);	
 			}
 		}	
 		
-		foreach(@isolates){												          # loop through the cultured isolates
+		foreach(@isolates){									# loop through the cultured isolates
 			my $currentIso = $_->{ORGANISM};
 			my $currentGrowth = $_->{GROWTH};
 			my $dontPrint = 0;
-			foreach(@sens){												            # loop through the organisms with sensitivities
+			foreach(@sens){									# loop through the organisms with sensitivities
 				my $currentSensIso = $_->{ORGANISM};
 				if($currentIso =~ /$currentSensIso/i){					# if a sensitivity is done on this organism
 					$dontPrint = 1;										            
@@ -271,35 +271,35 @@ sub parseAccessions {
 # Return Data: (0|1) Cancelled, Organism with value, Anitbiotic with value
 sub parseSensResults {
 	my $unit = $_[0];													
-	my $organism = "Unknown";											# organism sens was done on, default:Unknown
-	my @results;														      # results of the sens
-	foreach my $testCode ($unit->findnodes('./TestCode')){				# loop through the testcodes in this unit
+	my $organism = "Unknown";									# organism sens was done on, default:Unknown
+	my @results;											# results of the sens
+	foreach my $testCode ($unit->findnodes('./TestCode')){						# loop through the testcodes in this unit
     	my($TCextID) = $testCode->getAttribute("Ext-ID");
     	my($TCstatus) = $testCode->getAttribute("Status");
     	my($TCname) = $testCode->findnodes('Name');
     	my($TCvalue) = $testCode->findnodes('Value');
     	my($TCcomment) = $testCode->findnodes('Comment');
-    	if($TCvalue->to_literal eq "CANCELLED"){						# if anything in this test was cancelled 
-    		return (1, $organism, @results);							    # break with cancelled return value
+    	if($TCvalue->to_literal eq "CANCELLED"){							# if anything in this test was cancelled 
+    		return (1, $organism, @results);							# break with cancelled return value
     	}
     	if ($TCname->to_literal eq "ORGANISM"){
-    		$organism = $TCcomment->to_literal;							  # split the orginism from the growth value	
+    		$organism = $TCcomment->to_literal;							# split the orginism from the growth value	
     	}
     	else{
-    		push(@results, $TCname->to_literal);						  # add the anitbiotic to @results
-    		my @values = split(" ", $TCvalue->to_literal);		# split the anitbiotic from the resistance and MIC
+    		push(@results, $TCname->to_literal);						  	# add the anitbiotic to @results
+    		my @values = split(" ", $TCvalue->to_literal);						# split the anitbiotic from the resistance and MIC
     		if ($values[0]){
-    			push(@results, $values[0]);								      # add the restance to @results
+    			push(@results, $values[0]);							# add the restance to @results
     		}
     		else {
-    			push(@results, " ");									          # if no R/I/S Result exists add a placeholder to @results
+    			push(@results, " ");								# if no R/I/S Result exists add a placeholder to @results
     		}
     		
-    		if($values[1]){												            # if a value for MIC exists
-    			push(@results,$values[1]);								      # add MIC to @results
+    		if($values[1]){										# if a value for MIC exists
+    			push(@results,$values[1]);							# add MIC to @results
     		}
     		else {
-    			push(@results, " ");									          # if no MIC exists add a placeholder to @results
+    			push(@results, " ");								# if no MIC exists add a placeholder to @results
     		}
     	}
     }
@@ -309,25 +309,25 @@ sub parseSensResults {
 # Parse and return the culture results.
 # Return Data: (0|1) Canceled, Number of negitive, Source, Isolates with value
 sub parseCultureResults {
-	my $unit = $_[0];													              # passed pointer to unit
-	my $source = "Unknown";												          # culture source Default:Unknown
-	my $negResults = 0;													            # number of negitive cultures in this unit
-	my $totalCultures = 0;												          # count of the number of culture results found
-	my @isolates;														                # array of orginisms isolated in this unit
+	my $unit = $_[0];										# passed pointer to unit
+	my $source = "Unknown";										# culture source Default:Unknown
+	my $negResults = 0;										# number of negitive cultures in this unit
+	my $totalCultures = 0;										# count of the number of culture results found
+	my @isolates;											# array of orginisms isolated in this unit
 	
-	foreach my $testCode ($unit->findnodes('./TestCode')){				# loop through each testcode in the unit
+	foreach my $testCode ($unit->findnodes('./TestCode')){						
 		my($name) = $testCode->findnodes('Name');						  
 		my($value) = $testCode->findnodes('Value');						
-		if($value->to_literal eq "CANCELLED"){							  # if this test was canceled
-			return (1, 0, $source, @isolates);							    # return 1 in the canceled field exiting the parcer
+		if($value->to_literal eq "CANCELLED"){							# if this test was canceled
+			return (1, 0, $source, @isolates);						# return 1 in the canceled field exiting the parcer
 		}
-		elsif ($name->to_literal eq "SOURCE:"){							  # if this is the source test code
-			$source = $value->to_literal;								        # if a source is found store it's value
+		elsif ($name->to_literal eq "SOURCE:"){							# if this is the source test code
+			$source = $value->to_literal;							# if a source is found store it's value
 		}
 		elsif (($name->to_literal eq "COMPLETED CULTURE RESULTS") or ($name->to_literal eq "ANAEROBIC RESULTS:")){
-			$totalCultures++;											# found a culture result, increment counter
+			$totalCultures++;								# found a culture result, increment counter
 			my($comment) = $testCode->findnodes('Comment');				
-			my @commentLines = split(/\n/,$comment->to_literal);		# break the comment into individual lines
+			my @commentLines = split(/\n/,$comment->to_literal);				# break the comment into individual lines
 			foreach my $line (@commentLines)	{
 				if ((($line =~ /NO GROWTH/i) and ($line !~/NO GROWTH ON ORIGINAL PLATES/i))	# if the culture was negitive increment the neg counter
 				or ($line =~ /No organisms isolated anaerobically/i)
@@ -350,7 +350,7 @@ sub parseCultureResults {
 					or ($line =~ m/^Staphylococcus pseudintermedius/))
 					and $line !~ m/Please call/i
 					){
-					push(@isolates, $line);								# add isolate to the isolates array
+					push(@isolates, $line);						# add isolate to the isolates array
 				}
 			}	
 		}
@@ -365,16 +365,16 @@ sub parseCultureResults {
 #		2: Unit is a susceptibility result
 sub parseUnitType {
 	my $unit = $_[0];
-	my($ExtID) = $unit->getAttribute("Ext-ID");							  # get the ext-id of the unit
-	my($ExtValue) = $unit->findnodes('Name');							    # get the string Name of the unit
-	if(my @found = grep(/\b$ExtID\b/,@cultureID)){						# check if unit is a culture
+	my($ExtID) = $unit->getAttribute("Ext-ID");							# get the ext-id of the unit
+	my($ExtValue) = $unit->findnodes('Name');							# get the string Name of the unit
+	if(my @found = grep(/\b$ExtID\b/,@cultureID)){							# check if unit is a culture
 		$testCodeCounts[$ExtID]++;
 		return 1;
 	}
-	elsif ($ExtValue->to_literal eq "SUSCEPTIBILITY"){					# if the unit is a sensitivity
+	elsif ($ExtValue->to_literal eq "SUSCEPTIBILITY"){						# if the unit is a sensitivity
 		return 2;
 	}	
-	else{																                        # otherwise return 0 to ignore
+	else{												# otherwise return 0 to ignore
 		return 0;
 	}				
 }	
@@ -383,8 +383,8 @@ sub parseUnitType {
 # Data Returned as hash in to_literal:
 # ChartID, LabAccID, Date, Name, Age, Sex, Species, Breed, Owner, Doctor
 sub parseAccessionHeader {
-	my $accessionTree = $_[0];											            # passed pointer to tree
-	my $header = {};													                  # array of hashes to hold header data
+	my $accessionTree = $_[0];									# passed pointer to tree
+	my $header = {};										# array of hashes to hold header data
 	my($name) = $accessionTree->findnodes('AccessionHeader/Pet/Name');
     my($age) = $accessionTree->findnodes('AccessionHeader/Pet/Age');
     my($sex) = $accessionTree->findnodes('AccessionHeader/Pet/Sex');
@@ -467,7 +467,7 @@ sub printLine {
 		}
 		print "\n";
 	}
-	elsif ($output == 0) {									# if print to file 
+	elsif ($output == 0) {										# if print to file 
 		if($results){
 			print OUTP $labIDNumber,"\t",$labName,"\t",$clinicAccountNumber,"\t",$clinicName,"\t",$header->{CHARTID}, 
 			"\t",$header->{LABID},"\t",$header->{DATE},"\t",$header->{NAME},"\t",$header->{AGE},"\t",$header->{SEX},
