@@ -4,14 +4,14 @@ use warnings;
 use XML::LibXML;
 
 #########################################################################################
-#		Name: 		Idexx2Whonet3.pl													
-#		Version:	3.1.2																
-#		Date:		  11.04.11															
-#		By:			  Avi Solomon															
-#		Purpose: 	Convert idexx "import" xml to a format suitable for WhoNet			
-#		Requires: Idexx xml file														
-#		Input:		commandline arg filename.xml and outputfile.tsv						
-#		Output:		TSV text file and standard output debug								
+#	Name: 		Idexx2Whonet3.pl													
+#	Version:	3.1.2																
+#	Date:		11.04.11															
+#	By:		Avi Solomon (genepool99@gmail.)															
+#	Purpose: 	Convert idexx "import" xml to a format suitable for WhoNet			
+#	Requires: 	IDEXX XML file														
+#	Input:		commandline arg filename.xml and outputfile.tsv						
+#	Output:		TSV text file and standard output debug								
 #########################################################################################
 
 my $startTime = time();		# Time script started
